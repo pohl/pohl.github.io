@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Rust | screaming.org]]></title>
+  <link href="http://pohl.github.io/blog/categories/rust/atom.xml" rel="self"/>
+  <link href="http://pohl.github.io/"/>
+  <updated>2014-07-12T21:35:23-05:00</updated>
+  <id>http://pohl.github.io/</id>
+  <author>
+    <name><![CDATA[Pohl Longsine]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Ettàwîl Cüţx]]></title>
+    <link href="http://pohl.github.io/blog/2014/07/12/ettawil-cutx/"/>
+    <updated>2014-07-12T21:00:08-05:00</updated>
+    <id>http://pohl.github.io/blog/2014/07/12/ettawil-cutx</id>
+    <content type="html"><![CDATA[<p>I don&rsquo;t speak <a href="http://en.wikipedia.org/wiki/Ithkuil">Ithkuil</a>, but the title may be equivalent to &ldquo;Hello, World&rdquo;.</p>
+
+<p>I&rsquo;m guessing <a href="http://www.rust-lang.org">Rust</a> will be more approachable. Thankfully I can defer wrapping my head around the syntax for lifetimes.</p>
+
+<p>```
+fn main() {</p>
+
+<pre><code>println!("Ettàwîl Cüţx");
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
+  
+</feed>
