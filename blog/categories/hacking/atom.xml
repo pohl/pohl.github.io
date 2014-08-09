@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[screaming.org]]></title>
-  <link href="http://pohl.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Hacking | screaming.org]]></title>
+  <link href="http://pohl.github.io/blog/categories/hacking/atom.xml" rel="self"/>
   <link href="http://pohl.github.io/"/>
   <updated>2014-08-09T14:41:48-05:00</updated>
   <id>http://pohl.github.io/</id>
@@ -35,25 +35,6 @@
 <p>As I imagine what it might be like to participate in such an event, I find the most terrifying rule to be the 15-minute time limit. The results would likely be much less impressive than the images in Layer Tennis. Expect the match to look nothing like the <a href="http://en.wikipedia.org/wiki/Demo_scene">demo scene</a>. Instead, expect something closer to the <a href="http://en.wikipedia.org/wiki/Fizz_buzz">Fizz Buzz</a> end of the spectrum.</p>
 
 <p>If I&rsquo;m playing, that is. I would love to see what some of the more talented hackers could do under such tight pressure.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Ettàwîl Cüţx]]></title>
-    <link href="http://pohl.github.io/blog/2014/07/12/ettawil-cutx/"/>
-    <updated>2014-07-12T21:00:08-05:00</updated>
-    <id>http://pohl.github.io/blog/2014/07/12/ettawil-cutx</id>
-    <content type="html"><![CDATA[<p>I don&rsquo;t speak <a href="http://en.wikipedia.org/wiki/Ithkuil">Ithkuil</a>, but the title may be equivalent to &ldquo;Hello, World&rdquo;.</p>
-
-<p>I&rsquo;m guessing <a href="http://www.rust-lang.org">Rust</a> will be more approachable. Thankfully I can defer wrapping my head around the syntax for lifetimes.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>fn main() {
-</span><span class='line'>    println!("Ettàwîl Cüţx");
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   
