@@ -4,7 +4,7 @@
   <title><![CDATA[screaming.org]]></title>
   <link href="http://pohl.github.io/atom.xml" rel="self"/>
   <link href="http://pohl.github.io/"/>
-  <updated>2014-08-09T14:54:44-05:00</updated>
+  <updated>2014-08-09T14:57:33-05:00</updated>
   <id>http://pohl.github.io/</id>
   <author>
     <name><![CDATA[Pohl Longsine]]></name>
@@ -28,7 +28,7 @@
 
 <p>The constraint that the image be a standard size could be translated into a push to a git repository. This would provide a natural way for the audience to observe the match.</p>
 
-<p>The final rule – that the sparring partners are not allowed to ignore each other – needs no translation, but there are some interesting possibilities: you can call a function or use a structure defined by your opponent. Or, alternatively, it might be acceptable to refactor it in some way that preserves some recognizable aspect. Or maybe a volley would be returned with another program that uses some part of the prior volley as input, or produces some part of it as output.</p>
+<p>The final rule – that the sparring partners are not allowed to ignore each other – needs no translation.  Programming does bring some interesting spin, however. You could call a function or use a structure defined by your opponent. Or, alternatively, it might be acceptable to refactor it in some way that preserves some recognizable aspect. Or maybe a volley would be returned with another program that uses some part of the prior volley as input, or produces some part of it as output.</p>
 
 <p>I&rsquo;m tempted to say that there should be no additional rules, in order to maximize creative liberties. However, we might want to impose an additional constraint that the result is runnable.</p>
 
