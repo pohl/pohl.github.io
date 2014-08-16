@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Swift | screaming.org]]></title>
+  <link href="http://pohl.github.io/blog/categories/swift/atom.xml" rel="self"/>
+  <link href="http://pohl.github.io/"/>
+  <updated>2014-08-16T17:21:38-05:00</updated>
+  <id>http://pohl.github.io/</id>
+  <author>
+    <name><![CDATA[Pohl Longsine]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Let's Build a Browser Engine in Swift]]></title>
+    <link href="http://pohl.github.io/blog/2014/08/15/lets-build-a-browser-engine-in-swift/"/>
+    <updated>2014-08-15T19:01:49-05:00</updated>
+    <id>http://pohl.github.io/blog/2014/08/15/lets-build-a-browser-engine-in-swift</id>
+    <content type="html"><![CDATA[<p>The disembodied head of Matt Brubeck over at <a href="http://limpet.net/mbrubeck/">limpet.net</a> has been producing an excellent series of blog posts chronicling the exercise of creating a toy layout engine for a web browser. Matt works for Mozilla on <a href="http://en.wikipedia.org/wiki/Servo_(layout_engine)">Servo</a>, which is about as close to the bright center of the universe as any open source project is these days. He has taken on this exercise to bolster his own mental model of how layout engines work – so that he can more effectively contribute to Servo – and, apparently, to motivate others to share the journey.</p>
+
+<p>Do go read <a href="http://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">Matt&rsquo;s first post</a> in the series. He does a fabulous job of explaining the goal and its motivation, and of setting expectations for the scope of the effort. Even if you are not interested in doing this particular exercise, you might find that the way that he thinks about setting up the challenge will help you in other pursuits.</p>
+
+<p>Matt has chosen <a href="http://en.wikipedia.org/wiki/Rust_(programming_language)">Rust</a> as the programming language for this exercise, largely because Servo is written in it. 2014 has been an exciting year for emerging programming languages, and Rust may be the single most exhilarating one. However, I have been on a bit of a <a href="http://en.wikipedia.org/wiki/Swift_(programming_language)">Swift</a> kick[1] as of late, so I chose to use this as an opportunity to both learn how browser sausage is made and to practice some Swift.  My own toy project is called <a href="https://github.com/pohl/Crow">Crow</a>.</p>
+
+<p>I was going to put a litany of caveats here, but I decided to spare you. You&rsquo;re welcome.</p>
+
+<h2>First Step: The Central Model</h2>
+
+<p>The central data model for a browser is a tree of nodes representing the HTML document. Of course there is a <a href="http://dom.spec.whatwg.org">detailed specification</a> that spells out what a real implementation needs to be like. This is just a learning exercise, so simplicity is a higher priority than completeness.</p>
+
+<p>This might be a good time to <a href="http://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">open Matt&rsquo;s article</a> in another browser window so you can compare his Rust implementation to the Swift below.</p>
+
+<p>First we need a <code>Node</code> type so we can build the DOM tree. I&rsquo;m going to try to use <code>let</code> expressions where I can because I have grown to appreciate immutability wherever I can get it. Each node has a <code>NodeType</code>, and can also have any number of children.</p>
+
+<p>```
+public struct Node {</p>
+
+<pre><code>// data common to all nodes:
+public let children: [Node]
+// data specific to each node type:
+public let nodeType: NodeType
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Just like Matt&rsquo;s toy project, the <code>NodeType</code> is represented as an <code>enum</code>. There are two possible cases here: either the node represents an HTML element concomitant with tag name and a set of attributes, or it represents a string of characters between HTML tags.</p>
+
+<p>```
+public enum NodeType {</p>
+
+<pre><code>case Element(ElementData)
+case Text(String)
+</code></pre>
+
+<p>}
+```</p>
+
+<p>When a <code>NodeType</code> represents an HTML element, it needs a data structure to hold the tag name and the attributes. The attributes are represented as a <code>Dictionary&lt;String,String&gt;</code>. Like Matt, we&rsquo;ll make a type alias for that:</p>
+
+<p>```
+public struct ElementData {</p>
+
+<pre><code>public let tagName: String
+public let attributes: AttrMap
+</code></pre>
+
+<p>}</p>
+
+<p>public typealias AttrMap = [String:String]</p>
+
+<p>```</p>
+
+<p>Finally, Matt offers a pair of <code>Node</code> constructor functions for making instances. Swift has special syntax for constructors, but it does allow us to define them separately from the <code>struct</code> in an <code>extension</code> block.</p>
+
+<p>```
+extension Node {</p>
+
+<pre><code>public init(data: String) {
+    self.children = []
+    self.nodeType = .Text(data)
+}
+
+public init(name: String, attrs: AttrMap, children: [Node]) {
+    self.children = children
+    let data = ElementData(tagName: name, attributes: attrs)
+    self.nodeType = .Element(data)
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>That&rsquo;s it for the humble beginnings. Matt offers some ideas for further exercise in his post – and some links to other resources around the web – so you might want to check those out.</p>
+
+<p>Next time I&rsquo;ll take on the simple HTML parser that builds an actual tree out of the pieces above.</p>
+
+<hr />
+
+<p>[1] If I had a nickel for every time my dad offered me a motivational &ldquo;swift kick&rdquo;, I&rsquo;d have several nickels.</p>
+]]></content>
+  </entry>
+  
+</feed>
