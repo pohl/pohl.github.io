@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Swift | screaming.org]]></title>
   <link href="http://pohl.github.io/blog/categories/swift/atom.xml" rel="self"/>
   <link href="http://pohl.github.io/"/>
-  <updated>2014-08-16T19:04:13-05:00</updated>
+  <updated>2014-08-22T23:39:55-05:00</updated>
   <id>http://pohl.github.io/</id>
   <author>
     <name><![CDATA[Pohl Longsine]]></name>
@@ -12,6 +12,267 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Let's Build a Browser Engine in Swift, Part 2]]></title>
+    <link href="http://pohl.github.io/blog/2014/08/22/toy-layout-engine-2/"/>
+    <updated>2014-08-22T20:44:19-05:00</updated>
+    <id>http://pohl.github.io/blog/2014/08/22/toy-layout-engine-2</id>
+    <content type="html"><![CDATA[<p>By the end of <a href="http://screaming.org/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">part one</a>
+of this series we had a rudimentary document object model for representing only a tiny subset of the universe of possible HTML documents.
+This installment, modelled after the <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">second post</a> in Matt Brubeck&rsquo;s series, implements an equally modest HTML parser that
+will build instances of the model we defined last time.</p>
+
+<p>Our parser, just like our model, directly mirrors the design of Matt&rsquo;s implementation in Rust. The primary
+challenge is just one of translating between two languages. Open <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">Matt&rsquo;s post</a> in
+another browser window to compare the Swift code below to the original Rust.</p>
+
+<p>The first thing we need is a type to represent parsing state: the input string and the index of the
+next unprocessed character. Immediately this gets us into the differences between how Rust and Swift
+implement strings. Both languages need to handle the complexity of Unicode while being as efficient and
+safe as possible. In Rust our index was a <code>uint</code> that indexes into an <code>&amp;str</code> slice created from the <code>String</code>.  In Swift, we
+can index directly into the String, but our index type is a <code>String.Index</code> struct with a <code>succesor()</code> method that handles
+the complexity of stepping from character to character without accidentally stepping into the middle of one that has a multi-byte representation.</p>
+
+<p>```
+struct Parser {</p>
+
+<pre><code>var pos: String.Index
+let input: String
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Notice that since the input string doesn&rsquo;t change, we can use a <code>let</code> binding for it. The index, on the other hand, changes as we parse the document, which requires us to use <code>var</code>. Now that
+we have this type defined, we can implement a few foundational methods.</p>
+
+<p>```
+extension Parser {</p>
+
+<pre><code>// Read the current Character without consuming it.
+func nextCharacter() -&gt; Character {
+    return input[self.pos]
+}
+
+// Does the current input start with the given string?
+func startsWith(s: String) -&gt; Bool {
+    return self.input.substringFromIndex(self.pos).hasPrefix(s)
+}
+
+// Return true if all input is consumed.
+func eof() -&gt; Bool {
+    return self.pos &gt;= self.input.endIndex
+}
+
+// ...
+</code></pre>
+
+<p>}
+```</p>
+
+<p>These methods look very much like the Rust equivalents. The most obvious difference is that the references to <code>self</code> are explicitly declared in Rust but are implicit in Swift.</p>
+
+<p>Next we come to the place where the <code>successor()</code> method of <code>String.Index</code> allows us to safely advance to the next Unicode <code>Character</code>. This is the first method that mutates parsing state. Notice how the <code>&amp;mut self</code> in the Rust implementation is replaced by the <code>mutating</code> keyword in Swift.</p>
+
+<p>```
+// Return the current Character, and advance self.pos to the next Character.
+mutating func consumeCharacter() &ndash;> Character {</p>
+
+<pre><code>let result = input[self.pos]
+self.pos = self.pos.successor()
+return result
+</code></pre>
+
+<p>}
+```</p>
+
+<p>The next method is the heart of the parser. It consumes characters one by one for as long as the predicate function evaluates to <code>true</code>.</p>
+
+<p><code>``
+// Consume Character until</code>test` returns false.
+mutating func consumeWhile(test: Character &ndash;> Bool) &ndash;> String {</p>
+
+<pre><code>var result = ""
+while !self.eof() &amp;&amp; test(self.nextCharacter()) {
+    result.append(consumeCharacter())
+}
+return result
+</code></pre>
+
+<p>}
+```</p>
+
+<p>At this point in Matt&rsquo;s post, we would be defining a pair of methods using the one above. Both of these methods, however, want to pass predicates that test character set membership.  This is something that required a little gymnastics due to an apparent impedence mismatch between the native Swift <code>Character</code> type and the <code>NSCharacterSet</code> class, whose <code>characterIsMember</code> method requires a <code>unichar</code>. I was unable to find an easy way to convert one to another directly. Fortunately, <code>NSString</code> was a useful stepping stone between the two.</p>
+
+<p>```
+extension Character {</p>
+
+<pre><code>func isMemberOf(set: NSCharacterSet) -&gt; Bool {
+    let bridgedCharacter = (String(self) as NSString).characterAtIndex(0)
+    return set.characterIsMember(bridgedCharacter)
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Using this workaround we can implement the desired methods:</p>
+
+<p>```
+// Consume and discard zero or more whitespace Character.
+mutating func consumeWhitespace() {</p>
+
+<pre><code>self.consumeWhile( {$0.isMemberOf(NSCharacterSet.whitespaceCharacterSet()) })
+</code></pre>
+
+<p>}</p>
+
+<p>// Parse a tag or attribute name.
+mutating func parseTagName() &ndash;> String {</p>
+
+<pre><code>return self.consumeWhile( {$0.isMemberOf(NSCharacterSet.alphanumericCharacterSet()) })
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Now we finally get to finally write some functions that produce nodes in our object model.</p>
+
+<p>```
+// Parse a single node.
+mutating func parseNode() &ndash;> Node {</p>
+
+<pre><code>switch self.nextCharacter() {
+    case "&lt;": return self.parseElement()
+    case _: return self.parseText()
+}
+</code></pre>
+
+<p>}</p>
+
+<p>// Parse a text node.
+mutating func parseText() &ndash;> Node {</p>
+
+<pre><code>return Node(data: self.consumeWhile({$0 != "&lt;" }))
+</code></pre>
+
+<p>}
+```</p>
+
+<p>The function that produces a <code>Node</code> that represents an HTML element looks like the Rust equivalent. I like the assertions, so I kept them even though I worry that this code will fail to consume the characters in release builds. I have yet to test that.</p>
+
+<p>```
+// Parse a single element, including its open tag, contents, and closing tag.
+mutating func parseElement() &ndash;> Node {</p>
+
+<pre><code>// Opening tag.
+assert(self.consumeCharacter() == "&lt;")
+let tagName = self.parseTagName()
+let attrs = self.parseAttributes()
+assert(self.consumeCharacter() == "&gt;")
+
+// Contents.
+let children = self.parseNodes()
+
+// Closing tag.
+assert(self.consumeCharacter() == "&lt;")
+assert(self.consumeCharacter() == "/")
+assert(self.parseTagName() == tagName)
+assert(self.consumeCharacter() == "&gt;")
+
+return Node(name: tagName, attrs: attrs, children: children)
+</code></pre>
+
+<p>}
+```</p>
+
+<p>This is also a possible concern in two of the three methods for parsing HTML element attributes and values.</p>
+
+<p>```
+// Parse a single name=&ldquo;value&rdquo; pair.
+mutating func parseAttr() &ndash;> (String, String) {</p>
+
+<pre><code>let name = self.parseTagName()
+assert(self.consumeCharacter() == "=")
+let value = self.parseAttrValue()
+return (name, value)
+</code></pre>
+
+<p>}</p>
+
+<p>// Parse a quoted value.
+mutating func parseAttrValue() &ndash;> String {</p>
+
+<pre><code>let openQuote = self.consumeCharacter()
+assert(openQuote == "\"" || openQuote == "'")
+let value = self.consumeWhile( {$0 != openQuote} )
+assert(self.consumeCharacter() == openQuote)
+return value
+</code></pre>
+
+<p>}</p>
+
+<p>// Parse a list of name=&ldquo;value&rdquo; pairs, separated by whitespace.
+mutating func parseAttributes() &ndash;> AttrMap {</p>
+
+<pre><code>var attributes: AttrMap = [:]
+while (true) {
+    self.consumeWhitespace()
+    if self.nextCharacter() == "&gt;" {
+        break
+    }
+    let (name, value) = self.parseAttr()
+    attributes[name] = value
+}
+return attributes
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Before we can write the top-level method that parses an entire document, we need the method that parses a set of sibling nodes.</p>
+
+<p>```
+// Parse a sequence of sibling nodes.
+mutating func parseNodes() &ndash;> [Node] {</p>
+
+<pre><code>var nodes: [Node] = []
+while (true) {
+    self.consumeWhitespace()
+    if self.eof() || self.startsWith("&lt;/") {
+        break
+    }
+    nodes.append(self.parseNode())
+}
+return nodes
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Using the above, we can write the final method to parse a document.</p>
+
+<p>```
+// Parse an HTML document and return the root element.
+public func parse(source: String) &ndash;> Node {</p>
+
+<pre><code>var parser = Parser(pos: source.startIndex, input: source)
+let nodes = parser.parseNodes()
+// If the document contains a root element, just return it. Otherwise, create one.
+if nodes.count == 1 {
+    return nodes[0]
+} else {
+    return Node(name: "html", attrs: [:], children: nodes)
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>The <a href="https://github.com/pohl/Crow">Crow</a> project also contains some unit tests to exercise this, which means we have finally arrived at a place where we can pull the trigger and see something happen.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Let's Build a Browser Engine in Swift]]></title>

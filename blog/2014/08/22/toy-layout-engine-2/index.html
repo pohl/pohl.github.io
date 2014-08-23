@@ -5,13 +5,13 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>screaming.org</title>
+  <title>Let's Build a Browser Engine in Swift, Part 2 - screaming.org</title>
   <meta name="author" content="Pohl Longsine">
 
   <!-- Causes trouble with per-article font implementations under /source/_includes/article.html
   
-  <meta name="description" content="Let&#8217;s Build a Browser Engine in Swift, Part 2 Aug 22nd, 2014 By the end of part one
-of this series we had a rudimentary document object model &hellip;">
+  <meta name="description" content="Let's Build a Browser Engine in Swift, Part 2 Aug 22nd, 2014 By the end of part one
+of this series we had a rudimentary document object model for &hellip;">
   -->
   
 
@@ -21,7 +21,7 @@ of this series we had a rudimentary document object model &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://pohl.github.io">
+  <link rel="canonical" href="http://pohl.github.io/blog/2014/08/22/toy-layout-engine-2">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="screaming.org" type="application/atom+xml">
@@ -92,15 +92,12 @@ of this series we had a rudimentary document object model &hellip;">
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title" style="font-family: "><a href="/blog/2014/08/22/toy-layout-engine-2/">Let&#8217;s Build a Browser Engine in Swift, Part 2</a></h1>
+      <h1 class="entry-title" style="font-family: ">Let's Build a Browser Engine in Swift, Part 2</h1>
     
     
       <p class="meta">
@@ -123,7 +120,7 @@ of this series we had a rudimentary document object model &hellip;">
   </header>
 
 
-  <div class="entry-content" style="font-family: ; font-size: "><p>By the end of <a href="http://screaming.org/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">part one</a>
+<div class="entry-content" style="font-family: ; font-size: "><p>By the end of <a href="http://screaming.org/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">part one</a>
 of this series we had a rudimentary document object model for representing only a tiny subset of the universe of possible HTML documents.
 This installment, modelled after the <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">second post</a> in Matt Brubeck&rsquo;s series, implements an equally modest HTML parser that
 will build instances of the model we defined last time.</p>
@@ -462,19 +459,44 @@ we have this type defined, we can implement a few foundational methods.</p>
 
 <p>The <a href="https://github.com/pohl/Crow">Crow</a> project also contains some unit tests to exercise this, which means we have finally arrived at a place where we can pull the trigger and see something happen.</p>
 </div>
-  
-  
 
 
-    </article>
+  <footer>
+    
+      <div class="sharing">
   
-  <div class="pagination">
+  
+  
+</div>
+
     
-      <a class="prev" href="posts/2">&larr; Older</a>
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Text authored by <span class="fn">Pohl Longsine</span></span>
+
+
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/crow/'>crow</a>, <a class='category' href='/blog/categories/programming/'>programming</a>, <a class='category' href='/blog/categories/swift/'>swift</a>
+  
+</span>
+
+
+    </p>
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/08/15/lets-build-a-browser-engine-in-swift/" 
+           title="Previous Post: Let's Build a Browser Engine in Swift">&laquo; Let's Build a Browser Engine in Swift</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
 </div>
 
     </div>
