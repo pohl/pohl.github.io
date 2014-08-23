@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Crow | screaming.org]]></title>
   <link href="http://pohl.github.io/blog/categories/crow/atom.xml" rel="self"/>
   <link href="http://pohl.github.io/"/>
-  <updated>2014-08-22T23:39:55-05:00</updated>
+  <updated>2014-08-22T23:44:25-05:00</updated>
   <id>http://pohl.github.io/</id>
   <author>
     <name><![CDATA[Pohl Longsine]]></name>
@@ -271,6 +271,8 @@ if nodes.count == 1 {
 ```</p>
 
 <p>The <a href="https://github.com/pohl/Crow">Crow</a> project also contains some unit tests to exercise this, which means we have finally arrived at a place where we can pull the trigger and see something happen.</p>
+
+<p>If you have any code review to offer, leave a comment in <a href="http://www.reddit.com/r/swift/comments/2eccae/lets_build_a_browser_engine_in_swift_part_2/">/r/swift</a>.</p>
 ]]></content>
   </entry>
   
