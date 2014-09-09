@@ -121,9 +121,9 @@ of this series we had a rudimentary document object model for &hellip;">
 
 
 <div class="entry-content" style="font-family: ; font-size: "><p>By the end of <a href="http://screaming.org/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">part one</a>
-of this series we had a rudimentary document object model for representing only a tiny subset of the universe of possible HTML documents.
-This installment, modelled after the <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">second post</a> in Matt Brubeck&rsquo;s series, implements an equally modest HTML parser that
-will build instances of the model we defined last time.</p>
+of this series we had a rudimentary document object model for representing only a tiny subset of the universe of possible HTML documents. This installment, modelled after the <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">second post</a> in Matt Brubeck&rsquo;s series, implements an equally modest HTML parser that will build instances of the model we defined last time.</p>
+
+<h2>The HTML Parser</h2>
 
 <p>Our parser, just like our model, directly mirrors the design of Matt&rsquo;s implementation in Rust. The primary
 challenge is just one of translating between two languages. Open <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">Matt&rsquo;s post</a> in
@@ -297,7 +297,7 @@ we have this type defined, we can implement a few foundational methods.</p>
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>The function that produces a <code>Node</code> that represents an HTML element looks like the Rust equivalent. I like the assertions, so I kept them even though I worry that this code will fail to consume the characters in release builds. I have yet to test that.</p>
+<p>The function that produces a <code>Node</code> that represents an HTML element looks like the Rust equivalent. I like the assertions, so I kept them even though I worry that this code will fail to consume the characters in release builds. I have yet to test that. <em>(Edit: this does turn out to be a problem. Thanks to <a href="http://www.reddit.com/r/swift/comments/2eccae/lets_build_a_browser_engine_in_swift_part_2/cjzskww">/u/teequ</a> for confirming that.)</em></p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -494,6 +494,9 @@ we have this type defined, we can implement a few foundational methods.</p>
         <a class="basic-alignment left" href="/blog/2014/08/15/lets-build-a-browser-engine-in-swift/" 
            title="Previous Post: Let's Build a Browser Engine in Swift">&laquo; Let's Build a Browser Engine in Swift</a>
       
+      
+        <a class="basic-alignment right" href="/blog/2014/09/07/toy-layout-engine-3/" 
+           title="Next Post: Let's Build a Browser Engine in Swift, Part 3">Let's Build a Browser Engine in Swift, Part 3 &raquo;</a>
       
     </p>
   </footer>

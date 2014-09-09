@@ -10,7 +10,7 @@
 
   <!-- Causes trouble with per-article font implementations under /source/_includes/article.html
   
-  <meta name="description" content="Source Pong Aug 9th, 2014 A new season of Layer Tennis started up last night (after a four year hiatus) with two exhibition matches. Layer Tennis is &hellip;">
+  <meta name="description" content="Let&#8217;s Build a Browser Engine in Swift Aug 15th, 2014 The disembodied head of Matt Brubeck over at limpet.net has been producing an excellent &hellip;">
   -->
   
 
@@ -99,7 +99,7 @@
       
   <header>
     
-      <h1 class="entry-title" style="font-family: "><a href="/blog/2014/08/09/source-pong/">Source Pong</a></h1>
+      <h1 class="entry-title" style="font-family: "><a href="/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">Let&#8217;s Build a Browser Engine in Swift</a></h1>
     
     
       <p class="meta">
@@ -115,40 +115,111 @@
   
 
 
-<time datetime="2014-08-09T12:23:17-05:00" pubdate data-updated="true">Aug 9<sup>th</sup>, 2014</time>
+<time datetime="2014-08-15T19:01:49-05:00" pubdate data-updated="true">Aug 15<sup>th</sup>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content" style="font-family: ; font-size: "><p>A new season of <a href="http://layertennis.com">Layer Tennis</a> started up last night (after a four year hiatus) with two exhibition matches. Layer Tennis is a continuation of an <a href="http://everything2.com/title/Photoshop+Tennis">earlier tradition</a>, perhaps born on usenet, where two designers toss images back &amp; forth in a public forum, playing off of each other&rsquo;s work for competition and entertainment.</p>
+  <div class="entry-content" style="font-family: ; font-size: "><p>The disembodied head of Matt Brubeck over at <a href="http://limpet.net/mbrubeck/">limpet.net</a> has been producing an excellent series of blog posts chronicling the exercise of creating a toy layout engine for a web browser. Matt works for Mozilla on <a href="http://en.wikipedia.org/wiki/Servo_(layout_engine)">Servo</a>, which is about as close to the bright center of the universe as any open source project is these days. He has taken on this exercise to bolster his own mental model of how layout engines work – so that he can more effectively contribute to Servo – and, apparently, to motivate others to share the journey.</p>
 
-<p>I have neither training nor inclination towards design, but I do have enough interest in the subject to drive me to compulsively refresh in anticipation of the next volley.  There is something appealing about watching two artists locked in an exchange within tight constraints while a third participant – a writer with an expert eye – provides play-by-play and color commentary.  While I was enjoying yesterday&rsquo;s &ldquo;Kleon vs. Anderson&rdquo; match I started to think about the difficulties of orchestrating similar high jinks in the world of programming.</p>
+<p>Do go read <a href="http://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">Matt&rsquo;s first post</a> in the series. He does a fabulous job of explaining the goal and its motivation, and of setting expectations for the scope of the effort. Even if you are not interested in doing this particular exercise, you might find that the way that he thinks about setting up the challenge will help you in other pursuits.</p>
 
-<p>There are ten volleys, and each combatant has a budget of a mere 15 minutes to deliver the next blow.  I can&rsquo;t be certain, but I imagine that the entire event is time-delayed 15 minutes to give the commentator a similar budget of time to deliver their observations to the audience. I believe that there are deliberately very few rules, other than the dimensions of the resulting image and an obligation to somehow incorporate elements of the prior image. They otherwise appear free to use any tool at their disposal: paper, found objects, knives, cameras, scanners, and of course software.</p>
+<p>Matt has chosen <a href="http://en.wikipedia.org/wiki/Rust_(programming_language)">Rust</a> as the programming language for this exercise, largely because Servo is written in it. 2014 has been an exciting year for emerging programming languages, and Rust may be the single most exhilarating one. However, I have been on a bit of a <a href="http://en.wikipedia.org/wiki/Swift_(programming_language)">Swift</a> kick[1] as of late, so I chose to use this as an opportunity to both learn how browser sausage is made and to practice some Swift.  My own toy project is called <a href="https://github.com/pohl/Crow">Crow</a>.</p>
 
-<p>A naive translation into a competitive event between two programmers would keep the 15 minute constraint, and the total number of volleys. I think this would be essential, because it really does need to be an event that would play out in an afternoon.</p>
+<p>I was going to put a litany of caveats here, but I decided to spare you. You&rsquo;re welcome.</p>
 
-<p>The constraint that the image be a standard size could be translated into a push to a git repository. This would provide a natural way for the audience to observe the match.</p>
+<h2>First Step: The Central Model</h2>
 
-<p>The final rule – that the sparring partners are not allowed to ignore each other – needs no translation.  Programming does bring some interesting spin, however. You could call a function or use a structure defined by your opponent. Or, alternatively, it might be acceptable to refactor it in some way that preserves some recognizable aspect. Or maybe a volley would be returned with another program that uses some part of the prior volley as input, or produces some part of it as output.</p>
+<p>The central data model for a browser is a tree of nodes representing the HTML document. Of course there is a <a href="http://dom.spec.whatwg.org">detailed specification</a> that spells out what a real implementation needs to be like. This is just a learning exercise, so simplicity is a higher priority than completeness.</p>
 
-<p>I&rsquo;m tempted to say that there should be no additional rules, in order to maximize creative liberties. However, we might want to impose an additional constraint that the result be runnable. We also might want to forbid loadable resources that were not created within the time budget.</p>
+<p>This might be a good time to <a href="http://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">open Matt&rsquo;s article</a> in another browser window so you can compare his Rust implementation to the Swift below.</p>
 
-<p>Perhaps the most difficult question would be whether or not to allow libraries: allowing them would open the door to leveraging vast quantities of effort expended prior to the match, and forbidding them would open a difficult question of exactly what constitutes part of a standard acceptable library – for certainly there&rsquo;s not much that can be done with exactly zero library functions. Another good question is whether we have to restrict ourselves to a single language and environment. Could a volley written as a Haskell program on FreeBSD be returned by volley in SceneKit on MacOS X that animates the tokens from the <code>.hs</code> source?</p>
+<p>First we need a <code>Node</code> type so we can build the DOM tree. I&rsquo;m going to try to use <code>let</code> bindings where I can because I have grown to appreciate immutability wherever I can get it. Each node has a <code>NodeType</code>, and can also have any number of children.</p>
 
-<p>As I imagine what it might be like to participate in such an event, I find the most terrifying rule to be the 15-minute time limit. The results would likely be much less impressive than the images in Layer Tennis. Expect the match to look nothing like the <a href="http://en.wikipedia.org/wiki/Demo_scene">demo scene</a>. Instead, expect something closer to the <a href="http://en.wikipedia.org/wiki/Fizz_buzz">Fizz Buzz</a> end of the spectrum.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public struct Node {
+</span><span class='line'>    // data common to all nodes:
+</span><span class='line'>    public let children: [Node]
+</span><span class='line'>    // data specific to each node type:
+</span><span class='line'>    public let nodeType: NodeType
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
-<p>If I&rsquo;m playing, that is. I would love to see what some of the more talented hackers could do under such tight pressure.</p>
 
-<p>The programming world does already have at least one game that we play out in the open, but it lacks the dueling banjos appeal of Layer Tennis. I&rsquo;m thinking of Code Golf, of course, which can produce <a href="http://codegolf.stackexchange.com/questions/35569/tweetable-mathematical-art">impressive and entertaining results</a> in a short amount of time. (Follow that last link and compare the dates of some of the answers to how long ago the question was asked.) But even here we have no idea how many hours of thought and coding happened prior to the question being asked.</p>
+<p>Just like Matt&rsquo;s toy project, the <code>NodeType</code> is represented as an <code>enum</code>. There are two possible cases here: either the node represents an HTML element concomitant with tag name and a set of attributes, or it represents a string of characters between HTML tags.</p>
 
-<p>Code Golf has a different kind of constraint: how terse can your code be? The challenge in the last paragraph, for example, is wondering what could fit within a Tweet. It doesn&rsquo;t care if my submission comes after a month of late-night hacking.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public enum NodeType {
+</span><span class='line'>    case Element(ElementData)
+</span><span class='line'>    case Text(String)
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
-<p>The programming world also has <a href="http://en.wikipedia.org/wiki/ACM_International_Collegiate_Programming_Contest">programming</a> <a href="http://www.ludumdare.com/compo/">contests</a>, but even those provide several hours for the contestants to hack. Moreover, they are given a fixed set of problems to solve, which squelches creativity.</p>
 
-<p>Code Pong, as I am imagining it, may not even be possible. Layer Tennis, to use music as metaphor, is more like improvisational performance, whereas programming is more like composition, where short bursts in the psychological state of flow yield more modest fruit. Still, it might be interesting to try.</p>
+<p>When a <code>NodeType</code> represents an HTML element, it needs a data structure to hold the tag name and the attributes. The attributes are represented as a <code>Dictionary&lt;String,String&gt;</code>. Like Matt, we&rsquo;ll make a type alias for that:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public struct ElementData {
+</span><span class='line'>    public let tagName: String
+</span><span class='line'>    public let attributes: AttrMap
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>public typealias AttrMap = [String:String]
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, Matt offers a pair of <code>Node</code> constructor functions for making instances. Swift has special syntax for constructors, but it does allow us to define them separately from the <code>struct</code> in an <code>extension</code> block.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>extension Node {
+</span><span class='line'>    
+</span><span class='line'>    public init(data: String) {
+</span><span class='line'>        self.children = []
+</span><span class='line'>        self.nodeType = .Text(data)
+</span><span class='line'>    }
+</span><span class='line'>    
+</span><span class='line'>    public init(name: String, attrs: AttrMap, children: [Node]) {
+</span><span class='line'>        self.children = children
+</span><span class='line'>        let data = ElementData(tagName: name, attributes: attrs)
+</span><span class='line'>        self.nodeType = .Element(data)
+</span><span class='line'>    }
+</span><span class='line'>    
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it for the humble beginnings. Matt offers some ideas for further exercise in his post – and some links to other resources around the web – so you might want to check those out.</p>
+
+<p>Next time I&rsquo;ll take on the simple HTML parser that builds an actual tree out of the pieces above.</p>
+
+<hr />
+
+<p>[1] If I had a nickel for every time my dad offered me a motivational &ldquo;swift kick&rdquo;, I&rsquo;d have several nickels.</p>
 </div>
   
   

@@ -4,7 +4,7 @@
   <title><![CDATA[screaming.org]]></title>
   <link href="http://pohl.github.io/atom.xml" rel="self"/>
   <link href="http://pohl.github.io/"/>
-  <updated>2014-08-22T23:45:16-05:00</updated>
+  <updated>2014-09-09T00:13:20-05:00</updated>
   <id>http://pohl.github.io/</id>
   <author>
     <name><![CDATA[Pohl Longsine]]></name>
@@ -14,14 +14,335 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Let's Build a Browser Engine in Swift, Part 3]]></title>
+    <link href="http://pohl.github.io/blog/2014/09/07/toy-layout-engine-3/"/>
+    <updated>2014-09-07T18:21:33-05:00</updated>
+    <id>http://pohl.github.io/blog/2014/09/07/toy-layout-engine-3</id>
+    <content type="html"><![CDATA[<p>This is the third installment in a <a href="http://www.screaming.org/blog/categories/crow/">series</a> that parallels <a href="http://limpet.net/mbrubeck/">Matt Brubeck&rsquo;s</a> guided tour through making a browser engine so simplistic that its design can be captured in a handful of blog entries. The <a href="http://www.screaming.org/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">first entry</a> offered a minimal set of types for a document object model. The <a href="http://www.screaming.org/blog/2014/08/22/toy-layout-engine-2/">second entry</a> described a basic parser that could reify that model from an HTML document. This entry repeats those two exercises for a different kind of document that browsers must understand: a <a href="http://en.wikipedia.org/wiki/Cascading_Style_Sheets">cascading style sheet</a>.</p>
+
+<p>As usual, you should read <a href="http://limpet.net/mbrubeck/2014/08/13/toy-layout-engine-3-css.html">our fearless leader&rsquo;s post</a> prior to reading this one. After all, Matt works for Mozilla, while I&rsquo;m just someone who thought it would be fun to follow along.</p>
+
+<h2>CSS Model</h2>
+
+<p><a href="http://www.w3.org/TR/CSS2/">Cascading Style Sheets (CSS)</a> is a declarative language specific to the domain of associating elements in some markup language with properties describing their format and layout. The structure of the language, at the largest scale, is just a list of rules.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public struct Stylesheet {
+</span><span class='line'>    public let rules: [Rule]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One rule might look like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>body { background-color: #4a525a; }
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Each <em>rule</em> is made of a comma-delimited list of <em>selectors</em> followed by a <em>declaration block</em>, the former being everything prior to the opening curly-brace, and the latter being a semicolon-delimited list of <em>declarations</em> bounded by curly-braces.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public struct Rule {
+</span><span class='line'>    public let selectors: [Selector]
+</span><span class='line'>    public let declarations: [Declaration]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;re going to confine ourselves to a well-trafficked subset of selector syntax, but we&rsquo;re going to allow a place to extend our model later should we decide to support selector combinators or selector namespaces. We&rsquo;ll do this by defining an <code>enum</code> – which, for now, will only have one case:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public enum Selector {
+</span><span class='line'>    case Simple(SimpleSelector)
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That case encompasses the familiar:</p>
+
+<blockquote><p>&hellip;a simple selector can include a tag name, an ID prefixed by &lsquo;#&rsquo;, any number of class names prefixed by &lsquo;.&rsquo;, or some combination of the above.</p></blockquote>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public struct SimpleSelector {
+</span><span class='line'>    public var tagName: String?
+</span><span class='line'>    public var id: String?
+</span><span class='line'>    public var classes: [String]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Each declaration in the semicolon-delimited list is just a name/value pair separated by a colon.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public struct Declaration {
+</span><span class='line'>    public let name: String
+</span><span class='line'>    public let value: Value
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The values in these pairs, however, can take many forms. Again, we aim to ignore the devil hiding in the mountain of details so we limit ourselves to simple keywords, pixel-unit values, and colors.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public enum Value {
+</span><span class='line'>    case Keyword(String)
+</span><span class='line'>    case Length(Float, Unit)
+</span><span class='line'>    case Color(UInt8, UInt8, UInt8, UInt8) // RGBA
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>public enum Unit {
+</span><span class='line'>    case Px
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that we have some types we can use to represent simple stylesheets, we move on to making a corresponding parser.</p>
+
+<h2>CSS Parser</h2>
+
+<p>Our quick-and-dirty parser implementation looks very much like the HTML parser in the last post, with a handlful of functions that invoke the <code>consumeWhile()</code> function with various predicates.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// Parse a property name or keyword.
+</span><span class='line'>mutating func parseIdentifier() -&gt; String {
+</span><span class='line'>    return self.consumeWhile(validIdentifierChar)
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is a good place to mention a little bit of follow-up from the last post. Recall that I ran into a little hurdle when I tried to test character-set membership using a Swift <code>Character</code> type, and ended up creating bridging the gap through <code>NSString</code>, which was a bit of a kluge. It turns out that this hack only became necessary because I was insisting on using the old <code>NSCharacterSet</code> class. If I had given up on that API, I might have ended up with some predicates that looked a lot more like their Rust counterparts in the <a href="https://github.com/mbrubeck/robinson">Robinson</a> code.</p>
+
+<p>After playing around in a Swift Playground, I figured out that ranges of Characters actually do work after all. I just had to use <code>...</code> instead of <code>..</code>, and replace Rust&rsquo;s <code>|</code> operator with commas.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>func validIdentifierChar(c: Character) -&gt; Bool {
+</span><span class='line'>    switch c {
+</span><span class='line'>    case "a"..."z", "A"..."Z", "0"..."9", "-", "_": return true // TODO: Include U+00A0 and higher.
+</span><span class='line'>    case _: return false
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That said, I would have had to write some extra code either way, because Matt&rsquo;s code gets to lean on Rust&rsquo;s <code>std::char::is_whitespace</code> method. Swift&rsquo;s <code>Character</code> doesn&rsquo;t have such a method (yet) so either I create one of my own like our <code>validIdentifierChar()</code> method above or I set up the Rube Goldberg bridge to <code>NSCharacterSet</code>.</p>
+
+<p>Now we can look at our method to parse a <code>SimpleSelector</code>. You may have noticed that I declared its fields as <code>var</code> above. There was a reason for that: the way the following method imitates its Rust counterpart requires it. Notice how we allocate the <code>SimpleSelector</code> before entering the loop, and mutate its fields as we encounter characters in the loop. If I really wanted to keep my structure immutable, I could have created more local variables and constructed the <code>SimpleSelector</code> at the end of the loop.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// Parse one simple selector, e.g.: `type#id.class1.class2.class3`
+</span><span class='line'>mutating func parseSimpleSelector() -&gt; SimpleSelector {
+</span><span class='line'>    var selector = SimpleSelector(tagName: nil, id: nil, classes: [])
+</span><span class='line'>    outerLoop: while !self.eof() {
+</span><span class='line'>        switch self.nextCharacter() {
+</span><span class='line'>        case "#":
+</span><span class='line'>            self.consumeCharacter()
+</span><span class='line'>            selector.id = self.parseIdentifier()
+</span><span class='line'>        case ".":
+</span><span class='line'>            self.consumeCharacter()
+</span><span class='line'>            selector.classes.append(self.parseIdentifier())
+</span><span class='line'>        case "*":
+</span><span class='line'>            // universal selector
+</span><span class='line'>            self.consumeCharacter()
+</span><span class='line'>        case let c where validIdentifierChar(c):
+</span><span class='line'>            selector.tagName = self.parseIdentifier()
+</span><span class='line'>        case _:
+</span><span class='line'>            break outerLoop
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>    return selector;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The type alias for the <code>Specificity</code> tuple looks very much like the equivalent in Robinson. I was tempted here to use Swift&rsquo;s feature that allows us to name the three fields of the tuple. There were a few moments where I had to keep reminding myself which field represented which part of the selector, so I probably should have leveraged that feature.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public typealias Specificity = (Int, Int, Int)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I wrote the function that computes the specificity of a selector turned out as a Swift &ldquo;computed property&rdquo;.
+There was no particular reason for that, and I&rsquo;m not yet sure when one should or should not do that.</p>
+
+<p>There is more to say about how this compares to the equivalent method in Robinson, though. Notice how Rust&rsquo;s <code>std::option</code> is an actual collection with an iterator that you can query for cardinality. This is something you cannot yet do with Swift&rsquo;s <code>Optional</code>. I don&rsquo;t mind having to substitute some ternary expressions here, but I do like the Rust way.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>extension Selector {
+</span><span class='line'>    public var specificity: Specificity {
+</span><span class='line'>        switch self {
+</span><span class='line'>        case .Simple(let simple):
+</span><span class='line'>            let a = simple.id == nil ? 0 : 1
+</span><span class='line'>            let b = simple.classes.count
+</span><span class='line'>            let c = simple.tagName == nil ? 0 : 1
+</span><span class='line'>            return Specificity(a, b, c)
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is the last pair of methods mentioned in Matt&rsquo;s post. As with most of what we have seen so far, the Swift versions looks very much like the Rust counterparts. The most obvious difference here is that the <code>break</code> statement requires an <code>outerLoop</code> label to signify that it is the <code>while</code> loop that we want to break out of, and not the <code>switch</code>. Rust doesn&rsquo;t have this ambiguity. I suspect the reason can be traced back to Rust&rsquo;s expression-oriented nature. I bet that Swift will likely be the last major new language to go down the statement-oriented path. If I could have only one wish to make Swift better, I would wish that it had taken the high road.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// Parse a rule set: `&lt;selectors&gt; { &lt;declarations&gt; }`.
+</span><span class='line'>mutating func parseRule() -&gt; Rule {
+</span><span class='line'>    return Rule(selectors: self.parseSelectors(), declarations: self.parseDeclarations())
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>// Parse a comma-separated list of selectors.
+</span><span class='line'>mutating func parseSelectors() -&gt; [Selector] {
+</span><span class='line'>    var selectors: [Selector] = []
+</span><span class='line'>    outerLoop: while true {
+</span><span class='line'>        selectors.append(.Simple(self.parseSimpleSelector()))
+</span><span class='line'>        self.consumeWhitespace()
+</span><span class='line'>        let c = self.nextCharacter()
+</span><span class='line'>        switch c {
+</span><span class='line'>            case ",":
+</span><span class='line'>                self.consumeCharacter()
+</span><span class='line'>                self.consumeWhitespace()
+</span><span class='line'>            case "{":
+</span><span class='line'>                break outerLoop
+</span><span class='line'>            case _:
+</span><span class='line'>                assert(false, "Unexpected character \(c) in selector list")
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>    // Return selectors with highest specificity first, for use in matching.
+</span><span class='line'>    selectors.sort {
+</span><span class='line'>        $0 &gt; $1
+</span><span class='line'>    }
+</span><span class='line'>    return selectors
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, I would like to point out that the closure given to the <code>sort</code> method above works because I overloaded the <code>&gt;</code> comparison. This is another thing that Rust gives for free. Since every slot in our <code>Specificity</code> tuple is occupied by something that implements <code>Ord</code>, the entire tuple automatically implements <code>Ord</code>, and can therefore be compared in a manner somewhat similar to how <a href="http://stackoverflow.com/questions/5292303/python-tuple-comparison/5292332#5292332">Python allows</a>. In the absence of such linguistic luxury, I implemented this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>func &gt; (lhs:Specificity, rhs:Specificity) -&gt; Bool {
+</span><span class='line'>    if lhs.0 == rhs.0 {
+</span><span class='line'>        if lhs.1 == rhs.1 {
+</span><span class='line'>            return lhs.2 &gt; rhs.2
+</span><span class='line'>        } else {
+</span><span class='line'>            return lhs.1 &gt; rhs.1
+</span><span class='line'>        }
+</span><span class='line'>    } else {
+</span><span class='line'>        return lhs.0 &gt; rhs.0
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>func &gt; (lhs: Selector, rhs: Selector) -&gt; Bool {
+</span><span class='line'>    return lhs.specificity &gt; rhs.specificity
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the next post, we will take up the two proton packs we have built and ignore Dr. Egon Spengler&rsquo;s admonition to never cross the streams.</p>
+
+<p>In the mean time, you may want to check out Martin Tomasi’s <a href="http://www.wambo.at:8080/GyrosOfWar/browserino/tree/master">project</a>, which is following this same exercise, but is implemented in Java.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Let's Build a Browser Engine in Swift, Part 2]]></title>
     <link href="http://pohl.github.io/blog/2014/08/22/toy-layout-engine-2/"/>
     <updated>2014-08-22T20:44:19-05:00</updated>
     <id>http://pohl.github.io/blog/2014/08/22/toy-layout-engine-2</id>
     <content type="html"><![CDATA[<p>By the end of <a href="http://screaming.org/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">part one</a>
-of this series we had a rudimentary document object model for representing only a tiny subset of the universe of possible HTML documents.
-This installment, modelled after the <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">second post</a> in Matt Brubeck&rsquo;s series, implements an equally modest HTML parser that
-will build instances of the model we defined last time.</p>
+of this series we had a rudimentary document object model for representing only a tiny subset of the universe of possible HTML documents. This installment, modelled after the <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">second post</a> in Matt Brubeck&rsquo;s series, implements an equally modest HTML parser that will build instances of the model we defined last time.</p>
+
+<h2>The HTML Parser</h2>
 
 <p>Our parser, just like our model, directly mirrors the design of Matt&rsquo;s implementation in Rust. The primary
 challenge is just one of translating between two languages. Open <a href="http://limpet.net/mbrubeck/2014/08/11/toy-layout-engine-2.html">Matt&rsquo;s post</a> in
@@ -195,7 +516,7 @@ we have this type defined, we can implement a few foundational methods.</p>
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>The function that produces a <code>Node</code> that represents an HTML element looks like the Rust equivalent. I like the assertions, so I kept them even though I worry that this code will fail to consume the characters in release builds. I have yet to test that.</p>
+<p>The function that produces a <code>Node</code> that represents an HTML element looks like the Rust equivalent. I like the assertions, so I kept them even though I worry that this code will fail to consume the characters in release builds. I have yet to test that. <em>(Edit: this does turn out to be a problem. Thanks to <a href="http://www.reddit.com/r/swift/comments/2eccae/lets_build_a_browser_engine_in_swift_part_2/cjzskww">/u/teequ</a> for confirming that.)</em></p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

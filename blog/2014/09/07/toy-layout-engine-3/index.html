@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>screaming.org</title>
+  <title>Let's Build a Browser Engine in Swift, Part 3 - screaming.org</title>
   <meta name="author" content="Pohl Longsine">
 
   <!-- Causes trouble with per-article font implementations under /source/_includes/article.html
   
-  <meta name="description" content="Let&#8217;s Build a Browser Engine in Swift, Part 3 Sep 7th, 2014 This is the third installment in a series that parallels Matt Brubeck&rsquo;s &hellip;">
+  <meta name="description" content="Let's Build a Browser Engine in Swift, Part 3 Sep 7th, 2014 This is the third installment in a series that parallels Matt Brubeck&rsquo;s guided &hellip;">
   -->
   
 
@@ -20,7 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://pohl.github.io">
+  <link rel="canonical" href="http://pohl.github.io/blog/2014/09/07/toy-layout-engine-3">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="screaming.org" type="application/atom+xml">
@@ -91,15 +91,12 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title" style="font-family: "><a href="/blog/2014/09/07/toy-layout-engine-3/">Let&#8217;s Build a Browser Engine in Swift, Part 3</a></h1>
+      <h1 class="entry-title" style="font-family: ">Let's Build a Browser Engine in Swift, Part 3</h1>
     
     
       <p class="meta">
@@ -122,7 +119,7 @@
   </header>
 
 
-  <div class="entry-content" style="font-family: ; font-size: "><p>This is the third installment in a <a href="http://www.screaming.org/blog/categories/crow/">series</a> that parallels <a href="http://limpet.net/mbrubeck/">Matt Brubeck&rsquo;s</a> guided tour through making a browser engine so simplistic that its design can be captured in a handful of blog entries. The <a href="http://www.screaming.org/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">first entry</a> offered a minimal set of types for a document object model. The <a href="http://www.screaming.org/blog/2014/08/22/toy-layout-engine-2/">second entry</a> described a basic parser that could reify that model from an HTML document. This entry repeats those two exercises for a different kind of document that browsers must understand: a <a href="http://en.wikipedia.org/wiki/Cascading_Style_Sheets">cascading style sheet</a>.</p>
+<div class="entry-content" style="font-family: ; font-size: "><p>This is the third installment in a <a href="http://www.screaming.org/blog/categories/crow/">series</a> that parallels <a href="http://limpet.net/mbrubeck/">Matt Brubeck&rsquo;s</a> guided tour through making a browser engine so simplistic that its design can be captured in a handful of blog entries. The <a href="http://www.screaming.org/blog/2014/08/15/lets-build-a-browser-engine-in-swift/">first entry</a> offered a minimal set of types for a document object model. The <a href="http://www.screaming.org/blog/2014/08/22/toy-layout-engine-2/">second entry</a> described a basic parser that could reify that model from an HTML document. This entry repeats those two exercises for a different kind of document that browsers must understand: a <a href="http://en.wikipedia.org/wiki/Cascading_Style_Sheets">cascading style sheet</a>.</p>
 
 <p>As usual, you should read <a href="http://limpet.net/mbrubeck/2014/08/13/toy-layout-engine-3-css.html">our fearless leader&rsquo;s post</a> prior to reading this one. After all, Matt works for Mozilla, while I&rsquo;m just someone who thought it would be fun to follow along.</p>
 
@@ -436,19 +433,44 @@ There was no particular reason for that, and I&rsquo;m not yet sure when one sho
 
 <p>In the mean time, you may want to check out Martin Tomasi’s <a href="http://www.wambo.at:8080/GyrosOfWar/browserino/tree/master">project</a>, which is following this same exercise, but is implemented in Java.</p>
 </div>
-  
-  
 
 
-    </article>
+  <footer>
+    
+      <div class="sharing">
   
-  <div class="pagination">
+  
+  
+</div>
+
     
-      <a class="prev" href="posts/2">&larr; Older</a>
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Text authored by <span class="fn">Pohl Longsine</span></span>
+
+
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/crow/'>crow</a>, <a class='category' href='/blog/categories/programming/'>programming</a>, <a class='category' href='/blog/categories/swift/'>swift</a>
+  
+</span>
+
+
+    </p>
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/08/22/toy-layout-engine-2/" 
+           title="Previous Post: Let's Build a Browser Engine in Swift, Part 2">&laquo; Let's Build a Browser Engine in Swift, Part 2</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
 </div>
 
     </div>
