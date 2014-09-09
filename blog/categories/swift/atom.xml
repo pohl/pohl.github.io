@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Swift | screaming.org]]></title>
   <link href="http://pohl.github.io/blog/categories/swift/atom.xml" rel="self"/>
   <link href="http://pohl.github.io/"/>
-  <updated>2014-09-09T06:50:02-05:00</updated>
+  <updated>2014-09-09T06:51:52-05:00</updated>
   <id>http://pohl.github.io/</id>
   <author>
     <name><![CDATA[Pohl Longsine]]></name>
@@ -241,7 +241,7 @@ mutating func parseSelectors() -&gt; [Selector] {
 
 <p>```</p>
 
-<p>Finally, I would like to point out that the closure given to the <code>sort</code> method above works because I overloaded the <code>&gt;</code> comparison. This is another thing that Rust gives for free. Since every slot in our <code>Specificity</code> tuple is occupied by something that implements <code>Ord</code>, the entire tuple automatically implements <code>Ord</code>, and can therefore be compared in a manner somewhat similar to how <a href="http://stackoverflow.com/questions/5292303/python-tuple-comparison/5292332#5292332">Python allows</a>. In the absence of such linguistic luxury, I implemented this:</p>
+<p>Finally, I would like to point out that the closure given to the <code>sort</code> method above works because I overloaded the <code>&gt;</code> operator. This is another thing that Rust gives for free. Since every slot in our <code>Specificity</code> tuple is occupied by something that implements <code>Ord</code>, the entire tuple automatically implements <code>Ord</code>, and can therefore be compared in a manner somewhat similar to how <a href="http://stackoverflow.com/questions/5292303/python-tuple-comparison/5292332#5292332">Python allows</a>. In the absence of such linguistic luxury, I implemented this:</p>
 
 <p>```
 func > (lhs:Specificity, rhs:Specificity) &ndash;> Bool {</p>
