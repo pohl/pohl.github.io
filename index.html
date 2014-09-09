@@ -398,7 +398,7 @@ There was no particular reason for that, and I&rsquo;m not yet sure when one sho
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Finally, I would like to point out that the closure given to the <code>sort</code> method above works because I overloaded the <code>&gt;</code> operator. This is another thing that Rust gives for free. Since every slot in our <code>Specificity</code> tuple is occupied by something that implements <code>Ord</code>, the entire tuple automatically implements <code>Ord</code>, and can therefore be compared in a manner somewhat similar to how <a href="http://stackoverflow.com/questions/5292303/python-tuple-comparison/5292332#5292332">Python allows</a>. In the absence of such linguistic luxury, I implemented this:</p>
+<p>Finally, I would like to point out that the closure given to the <code>sort</code> method above works because I overloaded the <code>&gt;</code> operator. This is another thing that Rust gives for free. Since every slot in Matt&rsquo;s <code>Specificity</code> tuple is occupied by something that implements <code>Ord</code>, the entire tuple automatically implements <code>Ord</code>, and can therefore be compared in a manner somewhat similar to how <a href="http://stackoverflow.com/questions/5292303/python-tuple-comparison/5292332#5292332">Python allows</a>. In the absence of such linguistic luxury, I implemented this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
