@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Programming | screaming.org]]></title>
   <link href="http://pohl.github.io/blog/categories/programming/atom.xml" rel="self"/>
   <link href="http://pohl.github.io/"/>
-  <updated>2014-09-09T08:00:52-05:00</updated>
+  <updated>2014-09-09T20:25:20-05:00</updated>
   <id>http://pohl.github.io/</id>
   <author>
     <name><![CDATA[Pohl Longsine]]></name>
@@ -205,7 +205,9 @@ extension Selector {</p>
 
 <p>```</p>
 
-<p>Here is the last pair of methods mentioned in Matt&rsquo;s post. As with most of what we have seen so far, the Swift versions looks very much like the Rust counterparts. The most obvious difference here is that the <code>break</code> statement requires an <code>outerLoop</code> label to signify that it is the <code>while</code> loop that we want to break out of, and not the <code>switch</code>. Rust doesn&rsquo;t have this ambiguity. I suspect the reason can be traced back to Rust&rsquo;s expression-oriented nature. I bet that Swift will likely be the last major new language to go down the statement-oriented path. If I could have only one wish to make Swift better, I would wish that it had taken the high road.</p>
+<p>Here is the last pair of methods mentioned in Matt&rsquo;s post. As with most of what we have seen so far, the Swift versions looks very much like the Rust counterparts. The most obvious difference here is that the <code>break</code> statement requires an <code>outerLoop</code> label to signify that it is the <code>while</code> loop that we want to break out of, and not the <code>switch</code>. Rust doesn&rsquo;t have this ambiguity. The reason can be traced back to Rust&rsquo;s expression-oriented nature: its <code>match</code> expression returns a value. What value should it return if one were allowed to use <code>break</code> to escape the <code>match</code> expression?</p>
+
+<p>I bet that Swift will likely be the last major new language to go down the statement-oriented path. If I could have only one wish to make Swift better, I would wish that it had taken the high road.</p>
 
 <p>```</p>
 
